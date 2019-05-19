@@ -1,5 +1,2 @@
-# This is my very first Gitscript! 
-a=10
-print(a)
-
-library(dplyr)
+# This is our very first commit from the laptop! 
+# We are removing this file! 

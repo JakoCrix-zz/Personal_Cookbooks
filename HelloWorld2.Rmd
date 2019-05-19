@@ -1,0 +1,31 @@
+---
+title: "HelloWorld- From the laptop"
+output: html_notebook
+---
+
+# Setting up Git with Rstudio!  
+
+Steps on setting up: 
+1. Install git on the computer. Most of the preferences should be default
+2. Open Rstudio and create a new project> Git. If unable to do so, make sure to set the directory in the file to find where we installed git. If computer can't find git, go to global 
+options and change git executable to where git.exe is installed. The path should be C:\Program Files\Git\bin\git.exe. 
+3. Also choose where the the project will be stored. In this case, we stored this on our desktop at home. 
+4. Run and it should be fine! 
+
+
+# Instructions for use
+
+Create R files respectively. Note that when we create the files, it is in the usual files folder. Can also access from the desktop! 
+
+## Commit 
+To make changes, go to git tab on the top right and press commit. Remember to add respective information about the commit when we are commiting. Note that originally, we were thrown and error and we had to go to command prompt and enter a global user.email and a user.name. We had to enter details: 
+
+* git config --global user.email "you@example.com"
+* git config --global user.name "Your Name"
+
+It then made the changes in the commit folder
+
+## Push
+After committing, we would then want to push this onto Github (or Gitlab) if you so prefer. We press the Push icon which then sends this changes online. Note that when committing, other peoples work as well, you need an account (which we had to fill in when we did our first push.)
+
+Voila, our first commit is pushed online! 
