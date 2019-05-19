@@ -1,0 +1,190 @@
+---
+title: "DateTime Objects"
+output: html_notebook
+---
+
+# Datetime Objects
+Internally, Date objects are stored as the number of days since January 1, 1970, using negative numbers for earlier dates.  
+* The as.numeric function can be used to convert a Date object to its internal form.
+* To extract the components of the dates, the weekdays, months, days or quarters functions can be used. 
+
+Code	Value: 
+%d	Day of the month (decimal number)
+
+%m	Month (decimal number)
+%b	Month (abbreviated)
+%B	Month (full name)
+
+%y	Year (2 digit)
+%Y	Year (4 digit)
+
+```{r Basic DateTime Creation}
+as.Date("2012-08-30")
+as.Date("30/08/2012", format = "%d/%m/%Y")
+as.Date('April 26, 2001',format='%B %d, %Y')
+as.Date('22JUN01', format='%d%b%y')
+as.Date('1/15/2001',format='%m/%d/%Y')
+
+class(as.Date('1/15/2001',format='%m/%d/%Y'))
+Sys.Date() - as.Date("1970-01-01")
+difftime(Sys.Date(), as.Date("1970-01-01"), units = "days")
+difftime(Sys.Date(), as.Date("1970-01-01"), units = "weeks")
+
+```
+
+
+```{r Datetime lists}
+bdays = c(tukey=as.Date('1915-06-16'), fisher=as.Date('1890-02-17'),
+          cramer=as.Date('1893-09-25'), kendall=as.Date('1907-09-06'))
+          
+weekdays(bdays)
+months(bdays)
+quarters(bdays)
+```
+
+```{r Current Date and Time}
+date=Sys.Date()
+time=Sys.time()
+
+date
+date+1  #add an additional day
+
+time
+time+1        #add an aditional second
+time+60       #minute
+time+60*60    #hour
+time+60*60*24 #day
+```
+
+
+# Lubridate Objects ----
+To format dates, lubridate provides a series of functions that are a permutation of the letters “m”, “d” and “y” to represent the ordering of month, day and year. For example, if our data has a column of dates such as May 11, 1996, our dates are ordered month-day-year. Therefore we would use the mdy function to transform the column to a date object. If our dates were in the order of, say, year-month-day, we would use the ymd function. lubridate provides functions for every permutation of “m”, “d”, “y”.
+
+```{r}
+library(lubridate)
+# Note how the dates are immediately converted into date classes
+begin <- c("May 11, 1996", "September 12, 2001", "July 1, 1988")
+class(begin)
+begin <- mdy(begin)   ## [1] "1996-05-11" "2001-09-12" "1988-07-01"
+class(begin)
+
+ymd("20110604")
+ymd("2011/06/04")
+dmy("04/06/2011")
+
+
+mdy_hm("3-11-2017 5:21", tz = "US/Eastern")
+ymd_hms('2011-04-06 08:00:00')
+ymd_hms("2011-06-04 12:00:00", tz = "Pacific/Auckland")
+ymd_hms("2011-08-10 14:00:00", tz = "Pacific/Auckland")
+
+# Dealing with time
+time1 <- c("1:13", "0:58", "1:01")
+time1 <- ms(time1) ## [1] "1M 13S" "58S"    "1M 1S"
+time2 <- c("12:23:11", "09:45:31", "12:05:22")
+time2 <- hms(time2) ## [1] "12H 23M 11S" "9H 45M 31S"  "12H 5M 22S"
+time3 <- c("2:14", "2:16", "3:35")
+time3 <- hm(time3) ## [1] "2H 14M 0S" "2H 16M 0S" "3H 35M 0S"
+
+```
+
+Rounding Dates to the closest number:  
+```{r}
+x <- ymd_hms("2009-08-03 12:01:59.23")
+round_date(x, ".5s")
+round_date(x, "sec")
+round_date(x, "second")
+round_date(x, "minute")
+round_date(x, "5 mins")
+round_date(x, "hour")
+round_date(x, "2 hours")
+round_date(x, "day")
+round_date(x, "week")
+round_date(x, "month")
+round_date(x, "bimonth")
+round_date(x, "quarter") == round_date(x, "3 months")
+round_date(x, "halfyear")
+round_date(x, "year")
+```
+
+Using Ceiling dates and floor dates. Ceiling dates and floor dates is the beginning and the end of the specified interval. 
+```{r}
+x <- ymd_hms("2009-08-03 12:01:59.23")
+floor_date(x, ".1s")
+floor_date(x, "second")
+floor_date(x, "minute")
+floor_date(x, "hour")
+floor_date(x, "day")
+floor_date(x, "week")
+floor_date(x, "month")
+floor_date(x, "bimonth")
+floor_date(x, "quarter")
+floor_date(x, "season")
+floor_date(x, "halfyear")
+floor_date(x, "year")
+
+ceiling_date(x, ".1 sec") # imprecise representation at 0.1 sec !!!
+ceiling_date(x, "second")
+ceiling_date(x, "minute")
+ceiling_date(x, "5 mins")
+ceiling_date(x, "hour")
+ceiling_date(x, "day")
+ceiling_date(x, "week")
+ceiling_date(x, "month")
+ceiling_date(x, "bimonth") == ceiling_date(x, "2 months")
+ceiling_date(x, "quarter")
+ceiling_date(x, "season")
+ceiling_date(x, "halfyear")
+ceiling_date(x, "year")
+```
+
+Modifying dates:
+```{r Modifying POSIX}
+a <- ymd_hms("2009-08-03 12:01:59.23"); month(a)
+month(a) = 12; a
+
+second(a)
+second(a) = 12; a
+second(a) = 400 # result rolls over into the next higher element:
+
+update(a, day = 2, month = 3, second = 24) #update multiple values
+```
+
+Time Intervals:
+Since we’re dealing with elapsed time between two dates, let’s start with Intervals. We can define an Interval using the %--% operator:
+* They show the beginng date and end date
+```{r}
+start <- mdy_hm("3-11-2017 5:21", tz = "US/Eastern")
+end <- mdy_hm("3-12-2017 5:21", tz = "US/Eastern")
+time.interval <- start %--% end
+str(time.interval)  #  notice how the time zone changes from EST to EDT; indicates  Daylight Savings started
+```
+
+TIme Duration:
+To create a Duration between these two dates, we can use the as.duration function. Because Daylight Savings went into effect at 2:00 AM during the interval, an hour was skipped. Thus the duration between these two time points is only 23 hours.
+```{r}
+time.duration <- as.duration(time.interval)
+time.duration
+str(time.duration)
+time.period <- as.period(time.interval)
+
+```
+
+Calculations and conversions
+If we view the elapsed.time object we’ll just see date ranges. We can use as.duration or even as.numeric to view the elapsed time in seconds, weeks or days. 
+
+```{r}
+start <- c("2012-08-21", "2012-09-01", "2012-08-15", "2012-09-18")
+end <- c("2012-09-16", "2012-09-06", "2012-08-22", "2012-10-11")
+elapsed.time <- start %--% end
+
+as.duration(elapsed.time) / dweeks(1)
+as.duration(elapsed.time) / dhours(1)
+as.duration(elapsed.time) / ddays(1)
+as.duration(elapsed.time) / dminutes(1)
+as.duration(elapsed.time) / dyears(1)
+
+mean(as.duration(elapsed.time) / dweeks(1))
+
+```
+

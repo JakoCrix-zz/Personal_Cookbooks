@@ -12,14 +12,11 @@ options and change git executable to where git.exe is installed. The path should
 3. Also choose where the the project will be stored. In this case, we stored this on our desktop at home. 
 4. Run and it should be fine! 
 
-
 # Instructions for use
-
 Create R files respectively. Note that when we create the files, it is in the usual files folder. Can also access from the desktop! 
 
 ## Commit 
 To make changes, go to git tab on the top right and press commit. Remember to add respective information about the commit when we are commiting. Note that originally, we were thrown and error and we had to go to command prompt and enter a global user.email and a user.name. We had to enter details: 
-
 * git config --global user.email "you@example.com"
 * git config --global user.name "Your Name"
 

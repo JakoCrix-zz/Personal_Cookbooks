@@ -1,0 +1,109 @@
+---
+title: "Dplyr Package 101_1"
+---
+From: https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html
+Data: nycflights13
+
+Basics
+- filter() to select cases based on their values.
+- arrange() to reorder the cases.
+- select() and rename() to select variables based on their names.
+- mutate() and transmute() to add new variables that are functions of existing variables.
+- summarise() to condense multiple values to a single value.
+
+```{r Admin}
+library(dplyr); library(nycflights13)
+dim(flights); flights
+```
+
+# Filter, Selecting and Mutating
+```{r Filter and Arrange}
+flights[flights$month == 1 & flights$day == 1, ]  # Base R Code
+
+filter(flights, month == 1) # Using Dplyr Instead: 
+filter(flights, month == 1 & day == 1)
+
+arrange(flights, year)
+arrange(flights, year, month, day)
+arrange(flights, desc(arr_delay))
+```
+
+Things we learned: 
+starts_with or ends_with to filter column name with a certain name
+```{r Select_1}
+colnames(flights)
+select(flights, everything())
+
+select(flights, year)
+select(flights, year:day)              # Select all columns between year and day (inclusive)
+select(flights, year, month, day)      # Select columns by name
+select(flights, year, month, arr_time:arr_delay)
+
+select(flights, -(year:day))           # Select all columns except those from year to day (inclusive)
+select(flights, tail_num = tailnum) 
+
+select(flights, -starts_with("d"), -ends_with("time")) # can't start with "d" or ends with "time"
+```
+
+Things we learned:
+- identity: In a bracket, Dplyr reads column names as variable instead of string. Identity helps pull our the value instead of using the term as a column name. 
+```{r Select_2}
+# Part 1
+colnames(flights)
+select(flights, year)
+select(flights, 1)  # select column using the column index
+year <- "dep"
+select(flights, starts_with(year))  # columns that start with "dep"
+
+# Part 2
+select(flights, "year", "month", "day")
+year <- 5
+select(flights, year, identity(year))  # identity helps pull out the value 
+select(flights, year, !! year)         # alternatively, use the !!
+```
+
+
+Things we learned: 
+transmute: If you only want to keep the new variables, use transmute():
+```{r Mutate}
+mutate(flights, gain = arr_delay - dep_delay, speed = distance / air_time * 60)
+
+transmute(flights, gain = arr_delay - dep_delay,
+  gain_per_hour = gain / (air_time / 60)) 
+```
+
+# Group by and Summarising
+```{r Summarizing}
+daily <- group_by(flights, year, month, day)
+
+per_day   <- summarise(daily, flights = n())
+per_month <- summarise(per_day, flights = sum(flights))
+per_year  <- summarise(per_month, flights = sum(flights))
+```
+
+```{r GroupBy_1}
+by_tailnum <- group_by(flights, tailnum)
+by_tailnum2<- group_by(flights, year) # note difference from SQL! 
+
+delay <- summarise(by_tailnum, count = n(),
+                   dist = mean(distance, na.rm = TRUE),
+                   delay = mean(arr_delay, na.rm = TRUE)) %>%
+  filter(count > 20, dist < 2000)
+
+ggplot(delay, aes(dist, delay)) + geom_point(aes(size = count), alpha = 1/2) +
+  geom_smooth() +
+  scale_size_area()
+```
+
+# Piping 101
+```{r Piping}
+flights %>%
+  group_by(year, month, day) %>%
+  select(arr_delay, dep_delay) %>%
+  summarise(
+    arr = mean(arr_delay, na.rm = TRUE),
+    dep = mean(dep_delay, na.rm = TRUE)
+  ) %>%
+  filter(arr > 30 | dep > 30)
+```
+

@@ -1,0 +1,86 @@
+# Admin ----
+```{r}
+library(reshape2)
+library(plyr)
+
+head(airquality)
+str(airquality)
+```
+
+Usage and Arguments of melt function
+- data: data frame to melt
+- id.vars: This is something like our group by variable; using the vector of id variables. Can be integer (variable position) or string (variable name). If blank, will use all non-measured variables.
+- measure.vars: vector of measured variables. Can be integer (variable position) or string (variable name). If blank, will use all non id.vars
+
+Naming Convention variables: 
+- variable.name	name of variable used to store measured variable names
+- value.name	name of variable used to store values
+
+Specifications: 
+- na.rm	Should NA values be removed from the data set? This will convert explicit missings to implicit missings.
+- factorsAsStrings	Control whether factors are converted to character when melted as measure variables. When FALSE, coercion is forced if levels are not identical across the measure.vars.
+
+
+## Wide to Long Format
+```{r }
+# Melt 1= melt assumes all columns with numeric values are variables with values
+aql <- melt(airquality)                                        
+head(aql)
+
+
+
+# Melt 2= Grouping by Month and Day, want to know the values of ozone, solar.r, wind, and temp
+aql2_1 <- melt(airquality, id.vars = c("Month", "Day"))         
+head(aql2_1)
+
+aql2_2 <- melt(airquality, id.vars = c("Month", "Day"),
+             variable.name = "climate_variable", value.name = "climate_value") #naming our variables and values
+head(aql2_2)
+
+
+
+# Melt 3= Filtering to show only ozone and temp as our variables
+aql3_1 <- melt(airquality, id.vars = c("Month", "Day"), measure.vars=c("ozone",'temp'),  
+  variable.name = "climate_variable", value.name = "climate_value")
+head(aql3_1)
+
+```
+
+## Long to Wide Format
+dcast uses a formula to describe the shape of the data. The arguments on the left refer to the ID variables and the arguments on the right refer to the measured variables.
+
+```{r}
+# Melt+Dcast 1= 
+aql4 <- melt(airquality, id.vars = c("Month", "Day"))
+aqw4 <- dcast(data=aql4, Month + Day ~ variable)
+head(aqw4)
+
+```
+
+More things we could do with dcast: 
+```{r}
+aql4 <- melt(airquality, id.vars = c("Month", "Day"))
+aqw5=dcast(data=aql4, Month + Day ~ variable, 
+           subset = .(variable == 'temp')) #library plyr needed
+head(aqw5)
+
+aqw6=dcast(data=aql4, Month ~ variable, 
+           fun.aggregate = max, na.rm = TRUE, margins = T)
+head(aqw6)
+
+aqw7=dcast(data=aql4, Month ~ variable, 
+           fun.aggregate = mean, na.rm = TRUE, margins = T)
+head(aqw7)
+```
+
+
+### Aggregation
+. is used when there is more than one value per data cell. For example,
+```{r}
+str(airquality)
+aql <- melt(airquality, id.vars = c("Month", "Day"))
+str(aql)
+dcast(aql, Month ~ variable)
+dcast(aql, Month ~ variable, fun.aggregate = mean, na.rm = TRUE)
+```
+
