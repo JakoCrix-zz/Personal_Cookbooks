@@ -1,0 +1,108 @@
+---
+title: "R Notebook"
+---
+# Admin
+The walkthrough can be found at: [ARCH&GARCH Tute](https://www.youtube.com/watch?v=8VXmRl5gzEU&t=797s)
+```{r}
+library(quantmod)
+library(rugarch)
+library(rmgarch)
+```
+
+
+# Multivariate GARCH Models 
+Often you will want to model the volatility of a vector of assets. This can be done with the multivariate equivalent of the univariate GARCH model. Here we are using the rmgarch package which has a lot of useful functionality. We are applying it to estimate a multivariate volatility model for the returns of BP, Google/Alphabet and IBM shares.
+
+As for the rugarch package we first need to specify the model we want to estimate. Here we stick with a Dynamic Conditional Correlation (DCC) model. When estimating DCC models one basically estimates individual GARCH-type models. These are then used to standardise the individual residuals. As a second step one then has to specify the correlation dynamics of these standardised residuals. It is possible to estimate the parameters of the univariate and the correlation model in one big swoop. however, my experience with this, and other packages, is that it is beneficial to separate the two steps.
+
+## Model Setup
+Here we assume that we are using the same univariate volatility model specification for each of the three assets.
+What does this command do? You will recognise that ugarchspec(mean.model = list(armaOrder = c(1,0))) specifies an AR(1)-GARCH(1,1) model. By using replicate(3, ugarchspec...) we replicate this model 3 times (as we have three assets, IBM, Google/Alphabet and BP).
+```{r}
+# DCC (MVN)
+uspec.n = multispec(replicate(3, ugarchspec(mean.model = list(armaOrder = c(1,0)))))
+```
+
+We now estimate these univariate GARCH models using the multifit command.
+
+```{r}
+multf = multifit(uspec.n, rX)
+
+# To specify the correlation specification we use the dccspec function.
+spec1 = dccspec(uspec = uspec.n, dccOrder = c(1, 1), distribution = 'mvnorm')
+
+```
+
+## Model Estimation
+Now we are in a position to estimate the model using the dccfit function.
+
+We want to estimate the model as specified in spec1, using the data in rX. The option fit.control = list(eval.se = TRUE) ensures that the estimation procedure produces standard errors for estimated parameters. Importantly fit = multf indicates that we ought to use the already estimated univariate models as they were saved in multf. The way to learn how to use these functions is by a combination of looking at the functions's help (?dccfit) and googling.
+
+When you estimate a multivariate volatility model like the DCC model you are typically interested in the estimated covariance or correlation matrices. After all it is at the core of these models that you allow for time-variation in the correlation between the assets (there are also constant correlation models, but we do not discuss this here). Therefore we will now learn how we extract these.
+
+```{r}
+fit1 = dccfit(spec1, data = rX, fit.control = list(eval.se = TRUE), fit = multf)
+
+# Get the model based time varying covariance (arrays) and correlation matrices
+cov1 = rcov(fit1)  # extracts the covariance matrix
+cor1 = rcor(fit1)  # extracts the correlation matrix
+
+dim(cor1)
+```
+
+We get three outputs which tells us that we have a three dimensional object. The firts two dimensions have 3 elements each (think a 3×3 correlation matrix) and then there is a third dimension with 2850 elements. This tells us that cor1 stores 2850 (3×3) sorrelation matrices, one for each day of data.
+
+```{r}
+# Let's have a look at the correlation matrix for the last day, day 2853;
+cor1[,,dim(cor1)[3]]
+```
+
+So let's say we want to plot the time-varying correlation between Google and BP, which is 0.275244 on that last day. In our matrix with returns rX BP is the second asset and Google the 3rd. So in any particular correlation matrix we want the element in row 2 and column 3.
+
+
+```{r}
+cor_BG <- cor1[2,1,]   # leaving the last dimension empty implies that we want all elements
+cor_BG <- as.xts(cor_BG)  # imposes the xts time series format - useful for plotting
+plot(cor_BG)
+
+par(mfrow=c(3,1))  # this creates a frame with 3 windows to be filled by plots
+plot(as.xts(cor1[1,2,]),main="IBM and BP")
+plot(as.xts(cor1[1,3,]),main="IBM and Google")
+plot(as.xts(cor1[2,3,]),main="BP and Google")
+```
+## Forecasts
+Often you will want to use your estimated model to produce forecasts for the covariance or correlation matrix
+```{r}
+dccf1 <- dccforecast(fit1, n.ahead = 10)
+dccf1
+```
+
+The actual forecasts for the correlation can be addresse via
+```{r}
+Rf <- dccf1@mforecast$R    # use H for the covariance forecast
+str(Rf)
+
+corf_IB <- Rf[[1]][1,2,]  # Correlation forecasts between IBM and BP
+corf_IG <- Rf[[1]][1,3,]  # Correlation forecasts between IBM and Google
+corf_BG <- Rf[[1]][2,3,]  # Correlation forecasts between BP and Google
+```
+
+```{r}
+par(mfrow=c(3,1))  # this creates a frame with 3 windows to be filled by plots
+c_IB <- c(tail(cor1[1,2,],20),rep(NA,10))  # gets the last 20 correlation observations
+cf_IB <- c(rep(NA,20),corf_IB) # gets the 10 forecasts
+plot(c_IB,type = "l",main="Correlation IBM and BP")
+lines(cf_IB,type = "l", col = "orange")
+
+c_IG <- c(tail(cor1[1,3,],20),rep(NA,10))  # gets the last 20 correlation observations
+cf_IG <- c(rep(NA,20),corf_IG) # gets the 10 forecasts
+plot(c_IG,type = "l",main="Correlation IBM and Google")
+lines(cf_IG,type = "l", col = "orange")
+
+c_BG <- c(tail(cor1[2,3,],20),rep(NA,10))  # gets the last 20 correlation observations
+cf_BG <- c(rep(NA,20),corf_BG) # gets the 10 forecasts
+plot(c_BG,type = "l",main="Correlation BP and Google")
+lines(cf_BG,type = "l", col = "orange")
+```
+
+
