@@ -1,0 +1,15 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Legend Position
+The allowed values for the arguments legend.position are : “left”,“top”, “right”, “bottom”.
+
+```{r}
+p <- p + scale_color_brewer(palette="Paired")+theme_minimal()
+p + theme(legend.position="top")
+p + theme(legend.position="bottom")
+# Remove legend
+p + theme(legend.position="none")
+```
