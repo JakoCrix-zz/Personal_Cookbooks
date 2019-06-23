@@ -1,6 +1,5 @@
-"""Useful Methods"""
-"Methods for Strings"
-random_string='Hello World'
+## %% Methods for Strings"
+random_string='Hello World'; random_string
 
 random_string.upper()
 random_string.replace('o', 'Longer');
@@ -8,6 +7,16 @@ random_string.count('l')
 random_string.endswith('rld')
 random_string.index('l')
 ord('a')
+
+
+"35".isdigit()
+"35.6".isdigit()
+
+
+# %% Some conditionals
+'abs'.isalpha()
+'ABCd'.isupper()
+'Python'.endswith('on')
 
 
 
@@ -25,14 +34,3 @@ print("""Hello
 there
 world""")
 ord('a')
-
-#### Worksheet 2 ####
-num='500.5'
-print(type(num))
-y=float(msg)
-print(y)
-14/4
-14//4 #Just the number without the decimal
-14%4
-3*2
-3**2
