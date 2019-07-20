@@ -1,13 +1,12 @@
-
-
 # Creating Functions
-def Function1(x,y):
+def function1(x, y):
     return x*y
 
-Function2=lambda x,y: x*y
+function2=lambda x, y: x*y
 
-Function1(5,2)
-Function2(5,2)
+function1(5,2)
+function2(5,2)
+
 
 #FOrmat specifiers
 print('This is the original sentence')

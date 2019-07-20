@@ -22,7 +22,7 @@ ord('a')
 
 #### Work Sheet 1+2 ####
 print('Hello','Hello'+'Hello')
-print('Hello',5*'world)
+print('Hello',5*'world')
 random_string='Long'+' String'; random_string
 random_string.upper()
 
