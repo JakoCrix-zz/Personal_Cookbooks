@@ -1,4 +1,3 @@
-"""Grok 9, Sets"""
 ### Sets
 my_set1 = set()
 print(my_set1)
