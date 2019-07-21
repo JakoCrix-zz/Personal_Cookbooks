@@ -7,6 +7,11 @@
 print("{0} {0} It's off to work we go".format("Hi Ho!"))
 # Method 2 (Older method)
 print("%s It's off to work we go" % "Hi Ho!")
+print('I own {} horses'.format(10))
+
+'{}, {}, {}'.format('a', 'b', 'c')
+'{2}, {1}, {0}, {0}'.format('a', 'b', 'c')
+'{0}{1}{0}'.format('abra', 'cad')
 
 
 
@@ -29,8 +34,10 @@ For {t1} said {t2}
 # %f - Floating point numbers
 # {:6.2f}: use at least 6 characters and use two digits after the decimal point.
 # %.<number of digits>f - Floating point numbers with a fixed amount of digits to the right of the dot
-
+import math
 pi= 123456.1415926
+print('pi: {:2.3}'.format(math.pi))
+
 print('{:6.2f}'.format(math.pi))
 print("integer base 10: {:d}".format(9743))
 
