@@ -1,24 +1,31 @@
-# =============================================================================
-# Files 1- Grok 12 File IO
-# Created textfile: somebody.txt
-# =============================================================================
-file_object = open("zzsomebody.txt", 'r')
-file_object.close()
+# %% Opening Files
+import os
+os.getcwd()
+CurrentDirectory= "C:/Users/AndrewYeo/Documents/GitHub/Personal_Cookbooks/Cookbooks_Python/GrokCourse/DataFolder/"
+
+file_object = open(CurrentDirectory+"zzMobyDick.txt")
+file_object = open(CurrentDirectory+"zzMobyDick.txt", "r")
+file_object = open(CurrentDirectory+"zzMobyDick.txt", "w")  # write
+file_object = open(CurrentDirectory+"zzMobyDick.txt", "a")  # append
+file_object.close()             # when a file closes, all data written/appended is flushed to the file
 
 
-file_object=open("zzsomebody.txt", 'r')
+file_object = open(CurrentDirectory+"zzMobyDick.txt", "r")
 content=file_object.read()
 file_object.close()
 print(content)
 
+# %% Reading files a line at a time
+fo2= open(CurrentDirectory+"zzsomebody.txt", 'r')
+content=fo2.read()
+print(content)
+lineno = 1
+for line in fo2.readlines():
+    print("{}: {}".format(lineno, line), end="")
+    lineno += 1
 
+fo2.close()
 
-fo=open("zzsomebody.txt", 'r')
-linenumber=1
-for line in fo:
-    print(strline)
-    linenumber+=1
-fo.close()
 
 
 " Appending and altering files "
