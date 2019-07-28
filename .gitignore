@@ -2,3 +2,6 @@
 *.iml
 *.xml
 Cookbooks_Python/.idea/workspace.xml
+
+.Rproject.*
+.Rhistory.*
