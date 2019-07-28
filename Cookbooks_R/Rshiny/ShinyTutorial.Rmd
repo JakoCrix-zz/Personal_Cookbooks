@@ -1,0 +1,62 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+
+# UI ----
+Input Functions; Any sort of interaction a user can make is an input
+Our slider input. When we run, we see a the html code. 
+Input functions take many arguments: input name, label,... ...
+
+```{r}
+sliderInput(inputId="num",              # Argument Name
+            label="Choose a number",    # The explanation of an input. We can also do "" 
+            value=25, min=1, max=100)   # our different input specific arguments
+```
+
+Output Functions; An output that places into the app different outputs
+```{r}
+plotOutput(outputId="hist")   # unique name of an output
+```
+
+# Server function ----
+Helps assemble input into outputs.
+1) Save the output object with a dollar sign: output$hist
+2) render function creates the type of output we wish to make. 
+```{r}
+renderPlot({hist(rnorm(100)) })
+```
+3) Use input values with input$; input$name shows the input that users choose
+```{r}
+server= function(input, output){
+  output$hist = renderPlot({
+    title= "100  random normal values"
+    hist(rnorm(100), main=title)
+  })
+}
+
+server= function(input, output){
+  output$hist = renderPlot({
+    hist(rnorm(input$num))
+  })
+}
+```
+
+# Sharing ShinyApps
+Every webserver needs an app.R which will build the app. 
+Also ensure to include all the different datasets, images, ss, helper scripts in the same folder. 
+We can also save it in 2 file apps; ui.R and server.R. So the file names will be server.R and ui.R
+app.R -> server.R & ui.R
+
+
+Go to shinyapps.io and we can publish our own shiny apps. 
+Install a package called shinyapps through github:
+- In r enviroment, do: devtools:install_github("rstudio/shinyapps")
+- After installing the app, create an account and get the token from the page.
+- Everytime, we can publish the app onto the account with the button on top
+
+
+We can also build our own server! 
