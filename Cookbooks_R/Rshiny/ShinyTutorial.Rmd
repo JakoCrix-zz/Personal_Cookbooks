@@ -10,6 +10,7 @@ output: html_notebook
 Input Functions; Any sort of interaction a user can make is an input
 Our slider input. When we run, we see a the html code. 
 Input functions take many arguments: input name, label,... ...
+- It reacts when users change it
 
 ```{r}
 sliderInput(inputId="num",              # Argument Name
@@ -60,3 +61,18 @@ Install a package called shinyapps through github:
 
 
 We can also build our own server! 
+
+
+# Reactivity ----
+Remember our input and output objects: "input\$x manipulates output\$y". Reactive values act as the data streams that flow through the app. 
+
+We need to use reactive value (our slider) to work with reactive functions (renderplot); they don't work on their own. For example, we need a render plot which is a reactive function. Reactivity has 2 step process:
+1) Reactive values notify the functions that use them when they become invalid.
+2) The objects created by reactive functions respond (different objects respond differently). Use the correct reactive functions to react. 
+
+
+```{r}
+renderPlot({hist(rnorm(100, input$num))})
+
+```
+

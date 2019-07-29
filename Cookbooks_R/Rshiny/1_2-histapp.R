@@ -1,6 +1,4 @@
-
 library(shiny)
-
 
 ui= fluidPage("Hello World",
               sliderInput(inputId="num",
